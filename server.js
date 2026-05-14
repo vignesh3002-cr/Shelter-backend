@@ -3,7 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 
 import loginRoute from "./routes/login.js";
-import projectRoute from "./routes/projects.js";
+import projectRoute from "./routes/project.js";
 
 dotenv.config();
 
