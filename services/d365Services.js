@@ -63,4 +63,18 @@ async function getLoginUser(UserID, password) {
     );
     return response.data;
 }
-export { getProjects, getLoginUser };
+async function getProjectDetails(projectId) {
+
+    const token = await getAccessToken();
+    const response = await axios.get(
+        `${process.env.PROJECT_DETAILS_API_URL}?(dataAreaId='shlt',ProjId='${projectId}') `,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                Accept: "application/json"
+            }
+        }
+    );
+    return response.data.value;
+}
+export { getProjects, getLoginUser, getProjectDetails };
