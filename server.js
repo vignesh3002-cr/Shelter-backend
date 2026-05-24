@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import loginRoute from "./routes/login.js";
 import projectRoute from "./routes/project.js";
 import projectDetailsRoute from "./routes/project_details.js";
+import uploadRoutes from "./routes/uploadRoutes.js";
 
 dotenv.config();
 
@@ -19,7 +20,10 @@ app.use(cors({
 app.use("/api/auth", loginRoute);
 
 app.use("/api/projects", projectRoute);
-app.use("/api/projectsDetails/:projectId", projectDetailsRoute);
+app.use("/api/project-details", projectDetailsRoute);
+app.use( "/uploads",express.static("uploads"));
+
+app.use("/api/upload",uploadRoutes);
 
 app.listen(PORT, () => {
 

@@ -77,4 +77,46 @@ async function getProjectDetails(projectId) {
     );
     return response.data.value;
 }
-export { getProjects, getLoginUser, getProjectDetails };
+async function saveImageToD365(imageData) {
+
+  try {
+
+    const payload = {
+
+      ProjectId:
+        imageData.projectId,
+
+      ImageUrl:
+        imageData.imageUrl,
+
+      FileName:
+        imageData.fileName,
+    };
+
+    console.log(
+      "Sending to D365:",
+      payload
+    );
+
+    /*
+    await axios.post(
+      D365_URL,
+      payload,
+      {
+        headers: {
+          Authorization:
+            `Bearer ${token}`,
+        },
+      }
+    );
+    */
+
+  } catch (error) {
+
+    console.log(
+      "D365 Save Error",
+      error.message
+    );
+  }
+};
+export { getProjects, getLoginUser, getProjectDetails, saveImageToD365 };
