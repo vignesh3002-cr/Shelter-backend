@@ -1,7 +1,7 @@
 import express from "express";
 const router = express.Router();
 
-import { verifyToken } from "../configuration/authMiddleware.js";
+import { verifyToken } from "../middleware/authMiddleware.js";
 import { getProjects } from "../services/d365Services.js";
 
 router.get(

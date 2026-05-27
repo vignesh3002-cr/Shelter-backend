@@ -1,5 +1,23 @@
 import axios from "axios";
+console.log("TOKEN URL:",
+process.env.D365_TOKEN_URL);
 
+console.log("CLIENT ID:",
+process.env.D365_CLIENT_ID);
+
+console.log("SECRET:",
+process.env.D365_CLIENT_SECRET);
+
+console.log("SCOPE:",
+process.env.D365_SCOPE);
+export {
+
+  getProjects,
+  getLoginUser,
+  getProjectDetails,
+  getImageToD365,
+  getAccessToken
+};
 async function getAccessToken() {
     try {
 
@@ -77,46 +95,168 @@ async function getProjectDetails(projectId) {
     );
     return response.data.value;
 }
-async function saveImageToD365(imageData) {
+
+
+export const getProjectReport =
+
+async (projectId, date) => {
 
   try {
 
-    const payload = {
+    const token =
+      await getAccessToken();
 
-      ProjectId:
-        imageData.projectId,
+    // ONLY FILTER PROJECT ID IN D365
 
-      ImageUrl:
-        imageData.imageUrl,
+    const url =
+      `https://shlt-dev01185046dcf29ca8dcdevaos.axcloud.dynamics.com/data/ProjectPhysicalCompletionPercentages?$filter=ProjId eq '${projectId}'`;
 
-      FileName:
-        imageData.fileName,
-    };
+    console.log("D365 URL:", url);
+
+    const response =
+      await axios.get(
+        url,
+        {
+          headers: {
+            Authorization:
+              `Bearer ${token}`,
+            Accept:
+              "application/json"
+          }
+        }
+      );
+
+    // FETCH ALL RECORDS
+
+    let records =
+      response.data.value || [];
 
     console.log(
-      "Sending to D365:",
-      payload
+      "ALL RECORDS:",
+      records
     );
 
-    /*
-    await axios.post(
-      D365_URL,
-      payload,
-      {
-        headers: {
-          Authorization:
-            `Bearer ${token}`,
-        },
-      }
+    // FILTER DATE IN NODE.JS
+
+    if (date) {
+
+      records = records.filter(
+        (item) => {
+
+          if (!item.ProjDate)
+            return false;
+
+          // EXAMPLE:
+          // 2026-05-22T12:00:00Z
+
+          const itemDate =
+            item.ProjDate
+              .split("T")[0];
+
+          return itemDate === date;
+        }
+      );
+    }
+
+    console.log(
+      "FILTERED RECORDS:",
+      records
     );
-    */
+
+    return {
+      value: records
+    };
 
   } catch (error) {
 
     console.log(
-      "D365 Save Error",
+      "D365 ERROR:",
+      error.response?.data ||
       error.message
     );
+
+    throw error;
   }
 };
-export { getProjects, getLoginUser, getProjectDetails, saveImageToD365 };
+export const createProjectReport =
+async (body) => {
+
+  try {
+
+    const token =
+      await getAccessToken();
+
+    // REMOVE AUTO GENERATED FIELDS
+
+    delete body["@odata.etag"];
+
+    // D365 REQUIRED VALUES
+
+    const payload = {
+
+      ...body,
+
+      dataAreaId: "shlt"
+    };
+
+    console.log(
+      "CREATE PAYLOAD:",
+      payload
+    );
+
+    const response =
+      await axios.post(
+
+        "https://shlt-dev01185046dcf29ca8dcdevaos.axcloud.dynamics.com/data/ProjectPhysicalCompletionPercentages",
+
+        payload,
+
+        {
+          headers: {
+
+            Authorization:
+              `Bearer ${token}`,
+
+            "Content-Type":
+              "application/json"
+          }
+        }
+      );
+
+    return response.data;
+
+  } catch (error) {
+
+    console.log(
+      "CREATE ERROR:",
+      error.response?.data ||
+      error.message
+    );
+
+    throw error;
+  }
+};
+async function getImageToD365() {
+
+  const token =
+    await getAccessToken();
+
+  const response =
+    await axios.get(
+
+      process.env.GET_Image_API_URL,
+
+      {
+        headers: {
+
+          Authorization:
+            `Bearer ${token}`,
+
+          Accept:
+            "application/json"
+        }
+      }
+    );
+
+  return response.data.value;
+}

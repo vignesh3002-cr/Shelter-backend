@@ -4,11 +4,14 @@ import dotenv from "dotenv";
 
 import loginRoute from "./routes/login.js";
 import projectRoute from "./routes/project.js";
-import projectDetailsRoute from "./routes/project_details.js";
-import uploadRoutes from "./routes/uploadRoutes.js";
+import projectReportRoute
+from "./routes/projectReport.js";
+import uploadRoute from "./routes/uploadRoute.js";
+
+
 
 dotenv.config();
-
+ 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -20,11 +23,14 @@ app.use(cors({
 app.use("/api/auth", loginRoute);
 
 app.use("/api/projects", projectRoute);
-app.use("/api/project-details", projectDetailsRoute);
-app.use( "/uploads",express.static("uploads"));
-
-app.use("/api/upload",uploadRoutes);
-
+app.use(
+  "/api/project-report",
+  projectReportRoute
+);
+app.use(
+  "/api/upload",
+  uploadRoute
+);
 app.listen(PORT, () => {
 
     console.log(
