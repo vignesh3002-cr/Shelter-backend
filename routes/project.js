@@ -5,31 +5,28 @@ import { verifyToken } from "../middleware/authMiddleware.js";
 import { getProjects } from "../services/d365Services.js";
 
 router.get(
-    "/my-projects",
+  "/my-projects/:userId",
     async (req, res) => {
 
         try {
 
-            const projects = await getProjects();
-           /* const projects = [
-                {
-                    id: "PROJ001",
-                    name: "Project Alpha",
-                    assignedEmployeeId: "EMP001"
-                }];  */
-           // const employeeId =
-                //req.user.employeeId;
+            const { userId } =
+  req.params;
 
-            // Filter projects assigned
-            // to logged-in user
+const projects =
+  await getProjects();
 
-           // const assignedProjects =
-             /*   projects.filter(project =>
-                    project.assignedEmployeeId ===
-                    employeeId
-                );*/
-            console.log("successfully fetched projects from d365");
-             res.json(projects);
+const filteredProjects =
+  projects.filter(
+
+    project =>
+
+      project.CreatedBy ===
+      userId
+
+  );
+
+res.json(filteredProjects);
 
         } catch (error) {
 

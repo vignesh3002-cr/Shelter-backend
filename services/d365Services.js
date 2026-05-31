@@ -58,6 +58,10 @@ async function getProjects() {
             }
         }
     );
+     console.log(
+    "FIRST PROJECT:",
+    response.data.value[0]
+  );
 
     return response.data.value;
 }
@@ -79,6 +83,10 @@ async function getLoginUser(UserID, password) {
             }
         }
     );
+      console.log(
+  "LOGIN RESPONSE:",
+  response.data
+);
     return response.data;
 }
 async function getProjectDetails(projectId) {
