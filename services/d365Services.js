@@ -45,12 +45,12 @@ async function getAccessToken() {
     }
 }
 
-async function getProjects(userRecId) {
+async function getProjects() {
 
     const token = await getAccessToken();
 
     const response = await axios.get(
-        `${process.env.PROJECT_API_URL}?$filter=WorkerResponsible eq ${userRecId}`,
+        process.env.PROJECT_API_URL,
         {
             headers: {
                 Authorization: `Bearer ${token}`,
@@ -58,6 +58,10 @@ async function getProjects(userRecId) {
             }
         }
     );
+     console.log(
+    "FIRST PROJECT:",
+    response.data.value[0]
+  );
 
     return response.data.value;
 }
