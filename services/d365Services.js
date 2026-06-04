@@ -58,6 +58,10 @@ async function getProjects() {
             }
         }
     );
+     console.log(
+    "FIRST PROJECT:",
+    response.data.value[0]
+  );
 
     return response.data.value;
 }
@@ -79,6 +83,10 @@ async function getLoginUser(UserID, password) {
             }
         }
     );
+    console.log(
+  "LOGIN RESPONSE:",
+  response.data
+);
     return response.data;
 }
 async function getProjectDetails(projectId) {
@@ -236,6 +244,92 @@ async (body) => {
     throw error;
   }
 };
+export const getViewTime = async (projectId) => {
+
+  try {
+
+    const token =
+      await getAccessToken();
+
+    const response =
+      await axios.post(
+        process.env.VIEW_TIME_API_URL,
+        {
+          _request: {
+           ProjId: projectId,
+        },
+        },
+        {
+          headers: {
+
+            Authorization:
+              `Bearer ${token}`,
+
+            Accept:
+              "application/json"
+          }
+        }
+      );
+      console.log(
+        "VIEW TIME RESPONSE:",
+        response.data
+      );
+
+    return response.data;
+
+  } catch (error) {
+
+    console.log(
+      "VIEW TIME ERROR:",
+      error.response?.data ||
+      error.message
+    );
+
+    throw error;
+  }
+};
+export const updateTaskEndDate = async (projectId, wbsId, taskEndDate) => {
+  try {
+
+    const token =
+      await getAccessToken();
+    const response =
+      await axios.post(
+        process.env.UPDATE_TIME_API_URL,
+        {
+          _request: {
+            ProjId: projectId,
+            WBSId: wbsId,
+            TaskFinishDate: taskEndDate
+          },
+        },
+        {
+          headers: {
+            Authorization:
+              `Bearer ${token}`,
+            "Content-Type": "application/json"
+          }
+        }
+      );
+      console.log(
+        "UPDATE TIME RESPONSE:",
+        response.data
+      );
+
+    return response.data;
+
+  } catch (error) {
+
+    console.log(
+      "UPDATE TIME ERROR:",
+      error.response?.data ||
+      error.message
+    );
+
+    throw error;
+  }
+};
+
 async function getImageToD365() {
 
   const token =

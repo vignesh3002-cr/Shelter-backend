@@ -7,6 +7,7 @@ import projectRoute from "./routes/project.js";
 import projectReportRoute
 from "./routes/projectReport.js";
 import uploadRoute from "./routes/uploadRoute.js";
+import reviewTime from "./routes/TimeManagement.js";
 
 
 
@@ -31,6 +32,7 @@ app.use(
   "/api/upload",
   uploadRoute
 );
+app.use("/api/time-management", reviewTime);
 app.listen(PORT, () => {
 
     console.log(
