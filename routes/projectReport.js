@@ -115,7 +115,7 @@ router.post("/create", async (req, res) => {
 router.get(
   "/activities/:projectId",
   async (req, res) => {
-
+    console.log("ACTIVITIES API HIT");
     try {
 
       const { projectId } =
