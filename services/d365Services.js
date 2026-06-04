@@ -45,31 +45,29 @@ async function getAccessToken() {
         throw error;
     }
 }
-
-export const getProjectActivities = async (projectId) => {
+ const getProjectActivities = async (projectId) => {
 
   try {
 
     const token = await getAccessToken();
+const response = await axios.post(
 
-    const response = await axios.post(
+  "https://shlt-dev01185046dcf29ca8dcdevaos.axcloud.dynamics.com/api/services/SHLT_ProjectActivityMappingServiceGroup/SHLT_ProjectActivityMappingService/ProjectActivityMappingService",
 
-      process.env.PROJECT_ACTIVITY_API,
+  {
+    _request: {
+      ProjId: projectId
+    }
+  },
 
-      {
-        _request: {
-          ProjId: projectId
-        }
-      },
+  {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json"
+    }
+  }
 
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
-        }
-      }
-
-    );
+);
 
     return response.data;
 
