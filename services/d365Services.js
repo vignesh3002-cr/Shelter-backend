@@ -50,24 +50,26 @@ async function getAccessToken() {
   try {
 
     const token = await getAccessToken();
-const response = await axios.post(
 
-  "https://shlt-dev01185046dcf29ca8dcdevaos.axcloud.dynamics.com/api/services/SHLT_ProjectActivityMappingServiceGroup/SHLT_ProjectActivityMappingService/ProjectActivityMappingService",
+    const response = await axios.post(
 
-  {
-    _request: {
-      ProjId: projectId
-    }
-  },
+      process.env.PROJECT_ACTIVITY_API,
 
-  {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json"
-    }
-  }
+      {
+        _request: {
+          ProjId: projectId
+        }
+      },
+      
 
-);
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        }
+      }
+
+    );
 
     return response.data;
 
