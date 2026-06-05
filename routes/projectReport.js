@@ -5,9 +5,11 @@ const router =
 
 import {
   getProjectReport,
-  createProjectReport
+  createProjectReport,
+  getProjectActivities
 }
 from "../services/d365Services.js";
+
 
 
 // =======================================
@@ -106,5 +108,51 @@ router.post("/create", async (req, res) => {
     });
   }
 });
+// =======================================
+// GET DISCIPLINE ACTIONS FOR PROJECT
+// =======================================
+
+router.get(
+  "/activities/:projectId",
+  async (req, res) => {
+    console.log("ACTIVITIES API HIT");
+    try {
+
+      const { projectId } =
+        req.params;
+
+      const data =
+        await getProjectActivities(
+          projectId
+        );
+
+      res.json(data);
+
+    } catch (error) {
+
+      console.log(
+        "FETCH ACTIVITIES ERROR:",
+        error.response?.data ||
+        error.message
+      );
+
+      res.status(500).json({
+
+        error:
+          "Failed to fetch activities",
+
+        details:
+
+          error.response?.data?.error?.message ||
+
+          error.message ||
+
+          "Unknown Error"
+      });
+
+    }
+
+  }
+);
 
 export default router;

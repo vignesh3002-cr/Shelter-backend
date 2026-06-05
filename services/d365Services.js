@@ -16,7 +16,8 @@ export {
   getLoginUser,
   getProjectDetails,
   getImageToD365,
-  getAccessToken
+  getAccessToken,
+  getProjectActivities
 };
 async function getAccessToken() {
     try {
@@ -44,6 +45,44 @@ async function getAccessToken() {
         throw error;
     }
 }
+ const getProjectActivities = async (projectId) => {
+
+  try {
+
+    const token = await getAccessToken();
+
+    const response = await axios.post(
+
+      process.env.PROJECT_ACTIVITY_API,
+
+      {
+        _request: {
+          ProjId: projectId
+        }
+      },
+      
+
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        }
+      }
+
+    );
+
+    return response.data;
+
+  } catch (error) {
+
+    console.log(
+      error.response?.data ||
+      error.message
+    );
+
+    throw error;
+  }
+};
 
 async function getProjects() {
 
