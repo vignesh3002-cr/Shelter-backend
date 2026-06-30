@@ -4,8 +4,7 @@ import dotenv from "dotenv";
 
 import loginRoute from "./routes/login.js";
 import projectRoute from "./routes/project.js";
-import projectReportRoute
-from "./routes/projectReport.js";
+import projectReportRoute from "./routes/projectReport.js";
 import uploadRoute from "./routes/uploadRoute.js";
 import reviewTime from "./routes/TimeManagement.js";
 

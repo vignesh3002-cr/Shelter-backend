@@ -184,7 +184,7 @@ async (projectId, date) => {
     // ONLY FILTER PROJECT ID IN D365
 
     const url =
-      `https://shlt-dev01185046dcf29ca8dcdevaos.axcloud.dynamics.com/data/ProjectPhysicalCompletionPercentages?$filter=ProjId eq '${projectId}'`;
+      `${process.env.PROJECT_COMPLETION_API}?$filter=ProjId eq '${projectId}'`;
 
     console.log("D365 URL:", url);
 
@@ -281,9 +281,7 @@ async (body) => {
 
     const response =
       await axios.post(
-
-        "https://shlt-dev01185046dcf29ca8dcdevaos.axcloud.dynamics.com/data/ProjectPhysicalCompletionPercentages",
-
+        process.env.PROJECT_COMPLETION_API,
         payload,
 
         {
