@@ -1,16 +1,13 @@
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
-
 import loginRoute from "./routes/login.js";
 import projectRoute from "./routes/project.js";
 import projectReportRoute from "./routes/projectReport.js";
 import uploadRoute from "./routes/uploadRoute.js";
 import reviewTime from "./routes/TimeManagement.js";
+import { setEnvironment } from "./config/configManager.js";
 
-
-
-dotenv.config();
  
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -20,6 +17,31 @@ app.use(cors({
   origin: true,
   credentials: true
 }));
+
+app.post("/change-environment", (req, res) => {
+
+    const { environment } = req.body;
+    console.log("Requested Environment Change:", environment);
+    if (
+        environment !== "Development" &&
+        environment !== "Production"
+    ) {
+        return res.status(400).json({
+            message: "Invalid environment"
+        });
+    }
+
+    setEnvironment(environment);
+    console.log("Environment server.js changed to:", environment);
+
+    res.json({
+        success: true,
+        environment
+    });
+
+});
+
+
 app.use("/api/auth", loginRoute);
 
 app.use("/api/projects", projectRoute);

@@ -169,7 +169,7 @@ router.post(
 
       console.log(
         "UPLOAD URL:",
-        process.env.GET_Image_API_URL
+        `${config.baseUrl}${process.env.GET_Image_API_URL}`
       );
 
       console.log(
@@ -181,7 +181,7 @@ router.post(
       const response =
         await axios.post(
 
-          process.env.GET_Image_API_URL,
+         `${config.baseUrl}${process.env.GET_Image_API_URL}`,
 
           payload,
 

@@ -7,8 +7,7 @@ const router =
     try {
 
       const { projectId } =req.body;
-      const timeData =
-        await getViewTime(projectId);
+      const timeData = await getViewTime(projectId);
         console.log(
           "VIEW TIME DATA:",
           timeData
