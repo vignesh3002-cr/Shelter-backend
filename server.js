@@ -2,7 +2,6 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import loginRoute from "./routes/login.js";
-import projectRoute from "./routes/project.js";
 import projectReportRoute from "./routes/projectReport.js";
 import uploadRoute from "./routes/uploadRoute.js";
 import reviewTime from "./routes/TimeManagement.js";
@@ -44,7 +43,7 @@ app.post("/change-environment", (req, res) => {
 
 app.use("/api/auth", loginRoute);
 
-app.use("/api/projects", projectRoute);
+app.use("/api/projects", projectReportRoute);
 app.use(
   "/api/project-report",
   projectReportRoute

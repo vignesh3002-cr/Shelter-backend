@@ -10,7 +10,10 @@ const router = express.Router();
 
 
 const transporter = nodemailer.createTransport({
-    service: "gmail",
+    host: process.env.SMTP_HOST || "smtp.gmail.com",
+    port: Number(process.env.SMTP_PORT || 587),
+    secure: false,
+    requireTLS: true,
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
@@ -77,16 +80,26 @@ router.post("/login", async (req, res) => {
         );
 
 
-        await transporter.verify();
-        console.log("SMTP Ready");
+        try {
+            await transporter.verify();
+            console.log("SMTP Ready");
+        } catch (smtpVerifyError) {
+            console.error("SMTP verify failed:", smtpVerifyError);
+            return res.status(502).json({
+                success: false,
+                otpRequired: false,
+                message: "OTP email could not be sent. Please verify the SMTP credentials or Gmail app password."
+            });
+        }
 
-        await transporter.sendMail({
+        try {
+            await transporter.sendMail({
 
-            to: `${UserID}`,
+                to: `${UserID}`,
 
-            subject: "ERP Notification",
+                subject: "ERP Notification",
 
-            html: `
+                html: `
 
          <h2>Shelter Analytics</h2>
 
@@ -98,7 +111,15 @@ router.post("/login", async (req, res) => {
 
          `
 
-        });
+            });
+        } catch (smtpSendError) {
+            console.error("SMTP send failed:", smtpSendError);
+            return res.status(502).json({
+                success: false,
+                otpRequired: false,
+                message: "OTP email could not be sent. Please verify the SMTP credentials or Gmail app password."
+            });
+        }
 
         console.log(`OTP sent to ${UserID}:`, otp);
 
@@ -124,7 +145,8 @@ router.post("/login", async (req, res) => {
         console.log(err);
 
         res.status(500).json({
-
+            success: false,
+            otpRequired: false,
             message: "Server Error"
 
         });
