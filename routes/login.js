@@ -13,19 +13,25 @@ const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST || "smtp.gmail.com",
     port: Number(process.env.SMTP_PORT || 587),
     secure: false,
-    requireTLS: true,
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
     }
 });
-router.post("/login", async (req, res) => {
 
+
+router.post("/login", async (req, res) => {
     try {
 
         const { UserID, password } = req.body;
 
-        if (UserID === process.env.ADMIN_USERID && password === process.env.ADMIN_PASSWORD) {
+        // ADMIN LOGIN
+        if (
+            UserID === process.env.ADMIN_USERID &&
+            password === process.env.ADMIN_PASSWORD
+        ) {
+
+            console.log("Admin login successful");
 
             return res.json({
                 success: true,
@@ -36,37 +42,29 @@ router.post("/login", async (req, res) => {
                     Role: "Admin"
                 }
             });
-            console.log("Admin login successful");
-
         }
 
-        const user =
-            await getLoginUser(
-                UserID,
-                password
-            );
+        // NORMAL USER LOGIN
+        const user = await getLoginUser(
+            UserID,
+            password
+        );
 
-
-        if (
-            user["Login status"] !== "YES"
-        ) {
-
+        if (user["Login status"] !== "YES") {
             return res.json(user);
-
         }
 
-        const otp =
-            Math.floor(
-                100000 +
-                Math.random() * 900000
-            ).toString();
+        // GENERATE OTP
+        const otp = Math.floor(
+            100000 + Math.random() * 900000
+        ).toString();
 
-        const otpHash =
-            await bcrypt.hash(
-                otp,
-                10
-            );
+        const otpHash = await bcrypt.hash(
+            otp,
+            10
+        );
 
+        // CREATE OTP JWT
         const otpToken = jwt.sign(
             {
                 UserID,
@@ -79,128 +77,99 @@ router.post("/login", async (req, res) => {
             }
         );
 
-
+        // CHECK SMTP
         try {
+
+            console.log("Checking SMTP connection...");
+            console.log("SMTP_HOST:", process.env.SMTP_HOST);
+            console.log("SMTP_PORT:", process.env.SMTP_PORT);
+            console.log("EMAIL_USER:", process.env.EMAIL_USER);
+            console.log(
+                "EMAIL_PASS exists:",
+                !!process.env.EMAIL_PASS
+            );
+
             await transporter.verify();
+
             console.log("SMTP Ready");
+
         } catch (smtpVerifyError) {
-            console.error("SMTP verify failed:", smtpVerifyError);
+
+            console.error(
+                "SMTP VERIFY ERROR:",
+                smtpVerifyError
+            );
+
             return res.status(502).json({
                 success: false,
                 otpRequired: false,
-                message: "OTP email could not be sent. Please verify the SMTP credentials or Gmail app password."
+                message:
+                    "OTP email could not be sent. Please check SMTP configuration."
             });
         }
 
+        // SEND OTP
         try {
+
             await transporter.sendMail({
 
-                to: `${UserID}`,
+                from: `"Shelter Analytics" <${process.env.EMAIL_USER}>`,
+
+                to: UserID,
 
                 subject: "ERP Notification",
 
                 html: `
+                    <h2>Shelter Analytics</h2>
 
-         <h2>Shelter Analytics</h2>
+                    <p>Your OTP is:</p>
 
-         <p>Your OTP is</p>
+                    <h1>${otp}</h1>
 
-         <h1>${otp}</h1>
-
-         <p>Expires in 5 minutes.</p>
-
-         `
-
+                    <p>Expires in 5 minutes.</p>
+                `
             });
+
+            console.log(
+                `OTP email sent successfully to ${UserID}`
+            );
+
         } catch (smtpSendError) {
-            console.error("SMTP send failed:", smtpSendError);
+
+            console.error(
+                "SMTP SEND ERROR:",
+                smtpSendError
+            );
+
             return res.status(502).json({
                 success: false,
                 otpRequired: false,
-                message: "OTP email could not be sent. Please verify the SMTP credentials or Gmail app password."
+                message:
+                    "OTP email could not be sent."
             });
         }
 
-        console.log(`OTP sent to ${UserID}:`, otp);
+        console.log(`OTP generated for ${UserID}`);
 
-
-        console.log({
-
-            otpRequired: true,
-
-            otpToken
-
-        });
-        res.json({
-
+        return res.json({
+            success: true,
             otpRequired: true,
             otpToken
-
         });
 
-    }
+    } catch (err) {
 
-    catch (err) {
+        console.error("LOGIN ERROR:", err);
 
-        console.log(err);
-
-        res.status(err.status || 500).json({
+        return res.status(
+            err.status || 500
+        ).json({
             success: false,
             otpRequired: false,
-            message: err.message || "Server Error"
-
-        });
-
-    }
-
-});
-
-router.post("/verify-otp", async (req, res) => {
-
-    const { otp, otpToken } = req.body;
-
-    try {
-        const decoded = jwt.verify(otpToken, process.env.JWT_SECRET);
-
-        const valid = await bcrypt.compare(otp, decoded.otpHash);
-
-        if (!valid) {
-            return res.json({
-                success: false
-            });
-
-        }
-        res.json({
-            success: true,
-            user:
-                decoded.user
-        });
-    }
-
-    catch {
-        res.json({
-            success: false,
             message:
-                "OTP expired"
+                err.message || "Server Error"
         });
     }
 });
-
-
-router.post("/ResetPassword", async (req, res) => {
-    try {
-        console.log("BODY:", req.body);
-        const { UserId, newPassword } = req.body;
-        console.log("UserId:", UserId);
-        console.log("newPassword:", newPassword);
-        const result = await ResetPassword(UserId, newPassword);
-        console.log("Password reset result from d365:", result);
-        res.json(result);
-    } catch (error) {
-        console.log("Error occurred while resetting password:", error);
-        res.status(500).json({ message: "Internal server error" });
-    }
-});
-
 
 export default router;
