@@ -144,10 +144,10 @@ router.post("/login", async (req, res) => {
 
         console.log(err);
 
-        res.status(500).json({
+        res.status(err.status || 500).json({
             success: false,
             otpRequired: false,
-            message: "Server Error"
+            message: err.message || "Server Error"
 
         });
 

@@ -105,32 +105,41 @@ async function getLoginUser(UserID, password) {
   const config = getConfig();
 
   const token = await getAccessToken();
-  const response = await axios.post(
-    `${config.baseUrl}${process.env.D365_LOGIN_URL}`,
-    {
-      _request: {
-        UserId: UserID,
-        Password: password,
+  try {
+    const response = await axios.post(
+      `${config.baseUrl}${process.env.D365_LOGIN_URL}`,
+      {
+        _request: {
+          UserId: UserID,
+          Password: password,
+        },
       },
-    },
 
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json"
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        }
       }
-    }
-  );
-  console.log(
-    "LOGIN URL: ",
-    `${config.baseUrl}${process.env.D365_LOGIN_URL}`)
-
-
-  console.log(
-    "LOGIN RESPONSE:",
-    response.data
-  );
-  return response.data;
+    );
+    console.log(
+      "LOGIN RESPONSE:",
+      response.data
+    );
+    return response.data;
+  } catch (error) {
+    const d365Error =
+      error.response?.data?.Message ||
+      error.response?.data?.message ||
+      error.message;
+    console.log(
+      "D365 LOGIN ERROR:",
+      error.response?.data || error.message,
+      "LOGIN URL: ",
+      `${config.baseUrl}${process.env.D365_LOGIN_URL}`
+    );
+    throw new Error(d365Error);
+  }
 }
 export const ResetPassword = async (UserId, newPassword) => {
   try {

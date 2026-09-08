@@ -9,6 +9,8 @@ import {
 }
 from "../services/d365Services.js";
 
+import { getConfig } from "../config/configManager.js";
+
 const router =
   express.Router();
 
@@ -114,6 +116,7 @@ router.post(
   async (req, res) => {
 
     try {
+      const config = getConfig();
 
       console.log(
         "UPLOAD REQUEST RECEIVED"

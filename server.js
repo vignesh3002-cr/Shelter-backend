@@ -53,10 +53,24 @@ app.use(
   uploadRoute
 );
 app.use("/api/time-management", reviewTime);
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
 
-    console.log(
-        `Server running on port ${PORT}`
-    );
+server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+        console.error(`Port ${PORT} is already in use. Stop the other process or use a different port.`);
+    } else {
+        console.error('Server error:', err);
+    }
+    process.exit(1);
+});
 
+process.on('unhandledRejection', (reason) => {
+    console.error('Unhandled Rejection:', reason);
+});
+
+process.on('uncaughtException', (err) => {
+    console.error('Uncaught Exception:', err);
+    process.exit(1);
 });
