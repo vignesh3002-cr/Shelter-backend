@@ -10,7 +10,7 @@ const router = express.Router();
 
 
 const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST || "smtp.gmail.com",
+    host: process.env.SMTP_HOST || "smtp.office365.com",
     port: Number(process.env.SMTP_PORT || 587),
     secure: false,
     requireTLS: true,
