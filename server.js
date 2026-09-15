@@ -5,6 +5,7 @@ import loginRoute from "./routes/login.js";
 import projectReportRoute from "./routes/projectReport.js";
 import uploadRoute from "./routes/uploadRoute.js";
 import reviewTime from "./routes/TimeManagement.js";
+import projects from "./routes/project.js";
 import { setEnvironment } from "./config/configManager.js";
 import { requireAdmin } from "./middleware/requireAdmin.js";
 
@@ -52,7 +53,7 @@ app.post("/change-environment", requireAdmin, (req, res) => {
 
 app.use("/api/auth", loginRoute);
 
-app.use("/api/projects", projectReportRoute);
+app.use("/api/projects", projects);
 app.use(
   "/api/project-report",
   projectReportRoute
