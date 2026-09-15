@@ -2,23 +2,13 @@ import express from "express";
 import axios from "axios";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import nodemailer from "nodemailer";
 import { getLoginUser } from "../services/d365Services.js";
 import { ResetPassword } from "../services/d365Services.js";
 const router = express.Router();
 
 
 
-const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST || "smtp.office365.com",
-    port: Number(process.env.SMTP_PORT || 587),
-    secure: false,
-    requireTLS: true,
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    }
-});
+
 router.post("/login", async (req, res) => {
 
     try {
@@ -98,53 +88,78 @@ router.post("/login", async (req, res) => {
         );
 
 
-        try {
-            await transporter.verify();
-            console.log("SMTP Ready");
-        } catch (smtpVerifyError) {
-            console.error("SMTP verify failed:", smtpVerifyError);
-            return res.status(502).json({
-                success: false,
-                otpRequired: false,
-                message: "OTP email could not be sent. Please verify the SMTP credentials or Gmail app password."
-            });
-        }
+
 
         try {
-            await transporter.sendMail({
 
-                to: `${UserID}`,
+    const response = await axios.post(
+        "https://api.smtp2go.com/v3/email/send",
 
-                subject: "ERP Notification",
+        {
+            sender: "erp.notification@shelter.co",
 
-                html: `
+            to: [
+                UserID
+            ],
 
-         <h2>Shelter Analytics</h2>
+            subject: "ERP Notification",
 
-         <p>Your OTP is</p>
+            html_body: `
+                <h2>Shelter Analytics</h2>
 
-         <h1>${otp}</h1>
+                <p>Your OTP is</p>
 
-         <p>Expires in 5 minutes.</p>
+                <h1>${otp}</h1>
 
-         `
+                <p>Expires in 5 minutes.</p>
+            `
+        },
 
-            });
-        } catch (smtpSendError) {
-            console.error("SMTP send failed:", smtpSendError);
-            return res.status(502).json({
-                success: false,
-                otpRequired: false,
-                message: "OTP email could not be sent. Please verify the SMTP credentials or Gmail app password."
-            });
+        {
+            headers: {
+                "X-Smtp2go-Api-Key":
+                    process.env.SMTP2GO_API_KEY,
+
+                "Content-Type":
+                    "application/json"
+            },
+
+            timeout: 10000
         }
+    );
 
+
+    console.log(
+        "OTP email sent successfully through SMTP2GO:",
+        response.data
+    );
+
+} catch (emailError) {
+
+    console.error(
+        "SMTP2GO email sending failed:",
+        emailError.response?.data || emailError.message
+    );
+
+    return res.status(502).json({
+
+        success: false,
+
+        otpRequired: false,
+
+        message:
+            "OTP email could not be sent. Please try again later."
+
+    });
+
+}
         res.json({
 
             otpRequired: true,
             otpToken
 
         });
+
 
     }
 
